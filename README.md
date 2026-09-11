@@ -54,6 +54,21 @@ Páginas:
 
 - `/` — conceito do GoPar
 - `/atividades` — listagem de planos e parceiros
+- `/entrar` — login (e-mail + senha)
+- `/cadastro` — cadastro com nome, CPF, data de nascimento e gênero (18+)
+
+### Auth (Supabase)
+
+No `frontend/.env`, use `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` do projeto **go-par**.
+
+No Dashboard do Supabase → **Authentication → URL Configuration**:
+
+- **Site URL:** `http://localhost:5173`
+- **Redirect URLs:** `http://localhost:5173/**`
+
+Para desenvolvimento sem fricção, em **Providers → Email** você pode desativar **Confirm email**. Em produção, reative.
+
+O tipo de conta (`cliente` / `trabalhador`) fica em `profiles.account_type` com default `cliente` e **não pode ser alterado pelo cliente** (RLS + trigger).
 
 Atalhos a partir da raiz:
 
@@ -78,8 +93,7 @@ Crie dois serviços no mesmo repositório.
 - Root directory: `frontend`
 - Build: `npm install && npm run build`
 - Publish directory: `dist`
-- Variável de build: `VITE_API_URL` com a URL pública da API (ex.: `https://gopar-api.onrender.com`)
+- Variáveis de build: `VITE_API_URL` com a URL pública da API, `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`
 - Ative o rewrite de SPA para `index.html` (todas as rotas do React)
 
 Há um `render.yaml` na raiz como ponto de partida.
-# go-par
