@@ -133,6 +133,67 @@ export function AuthProvider({ children }) {
     setProfile(null)
   }, [])
 
+  const updateProfile = useCallback(
+    async ({ fullName, cpf, birthDate, gender }) => {
+      const userId = session?.user?.id
+      if (!userId) throw new Error('Você precisa estar autenticado.')
+
+      const payload = {
+        full_name: String(fullName).trim().replace(/\s+/g, ' '),
+        cpf: onlyDigits(cpf),
+        birth_date: birthDate,
+        gender,
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('id', userId)
+
+      if (error) throw error
+
+      const { error: metaError } = await supabase.auth.updateUser({
+        data: {
+          full_name: payload.full_name,
+          cpf: payload.cpf,
+          birth_date: payload.birth_date,
+          gender: payload.gender,
+        },
+      })
+      if (metaError) throw metaError
+
+      return refreshProfile(userId)
+    },
+    [session, refreshProfile],
+  )
+
+  const updateEmail = useCallback(async (email) => {
+    const { data, error } = await supabase.auth.updateUser({
+      email: String(email).trim(),
+    })
+    if (error) throw error
+    return data
+  }, [])
+
+  const updatePassword = useCallback(async (password) => {
+    const { data, error } = await supabase.auth.updateUser({ password })
+    if (error) throw error
+    return data
+  }, [])
+
+  const deleteAccount = useCallback(async () => {
+    const { data, error } = await supabase.functions.invoke('delete-account', {
+      method: 'POST',
+    })
+
+    if (error) throw error
+    if (data?.error) throw new Error(data.error)
+
+    await supabase.auth.signOut()
+    setSession(null)
+    setProfile(null)
+  }, [])
+
   const value = useMemo(
     () => ({
       session,
@@ -142,9 +203,25 @@ export function AuthProvider({ children }) {
       signUp,
       signIn,
       signOut,
+      updateProfile,
+      updateEmail,
+      updatePassword,
+      deleteAccount,
       refreshProfile,
     }),
-    [session, profile, loading, signUp, signIn, signOut, refreshProfile],
+    [
+      session,
+      profile,
+      loading,
+      signUp,
+      signIn,
+      signOut,
+      updateProfile,
+      updateEmail,
+      updatePassword,
+      deleteAccount,
+      refreshProfile,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -22,7 +22,7 @@ export function SignupPage() {
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
-  const [infoMessage, setInfoMessage] = useState('')
+  const [submittedEmail, setSubmittedEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   function updateField(key, value) {
@@ -32,31 +32,24 @@ export function SignupPage() {
   async function handleSubmit(event) {
     event.preventDefault()
     setFormError('')
-    setInfoMessage('')
 
     const result = validateSignup(form)
     setErrors(result.errors)
     if (!result.ok) return
 
+    const email = form.email.trim()
     setSubmitting(true)
     try {
-      const data = await signUp({
+      await signUp({
         fullName: form.fullName,
-        email: form.email,
+        email,
         password: form.password,
         cpf: form.cpf,
         birthDate: form.birthDate,
         gender: form.gender,
       })
 
-      if (data.session) {
-        navigate('/', { replace: true })
-        return
-      }
-
-      setInfoMessage(
-        'Conta criada. Se a confirmação de e-mail estiver ativa no Supabase, confirme antes de entrar.',
-      )
+      setSubmittedEmail(email)
       setForm(initialForm)
     } catch (error) {
       const message = error?.message || 'Não foi possível criar a conta.'
@@ -70,6 +63,43 @@ export function SignupPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (submittedEmail) {
+    return (
+      <div className="mx-auto max-w-lg px-5 py-16">
+        <p className="mb-3 text-xs font-medium uppercase tracking-[0.28em] text-clay">
+          Conta GoPar
+        </p>
+        <h1 className="font-serif text-4xl tracking-tight text-ink">
+          Confirme seu e-mail
+        </h1>
+        <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+          Enviamos um e-mail de confirmação para{' '}
+          <span className="font-medium text-ink">{submittedEmail}</span>.
+        </p>
+        <p className="mt-3 text-ink-soft">
+          Abra a mensagem e clique no link para ativar sua conta. Depois disso,
+          você já pode entrar no GoPar.
+        </p>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="inline-flex rounded-full bg-clay px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-clay-dark"
+          >
+            Ir para entrar
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubmittedEmail('')}
+            className="inline-flex rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper"
+          >
+            Criar outra conta
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -163,11 +193,6 @@ export function SignupPage() {
             {formError}
           </p>
         ) : null}
-        {infoMessage ? (
-          <p className="text-sm text-olive" role="status">
-            {infoMessage}
-          </p>
-        ) : null}
 
         <button
           type="submit"
@@ -180,7 +205,7 @@ export function SignupPage() {
 
       <p className="mt-8 text-sm text-ink-soft">
         Já tem conta?{' '}
-        <Link to="/entrar" className="font-medium text-ink underline">
+        <Link to="/login" className="font-medium text-ink underline">
           Entrar
         </Link>
       </p>

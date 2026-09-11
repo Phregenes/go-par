@@ -45,7 +45,7 @@ export function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/atividades"
+              to="/activities"
               className="inline-flex rounded-full bg-clay px-6 py-3 text-sm font-medium text-paper no-underline transition-colors hover:bg-clay-dark"
             >
               Ver atividades

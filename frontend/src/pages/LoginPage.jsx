@@ -83,7 +83,7 @@ export function LoginPage() {
 
       <p className="mt-8 text-sm text-ink-soft">
         Ainda não tem conta?{' '}
-        <Link to="/cadastro" className="font-medium text-ink underline">
+        <Link to="/signup" className="font-medium text-ink underline">
           Criar conta
         </Link>
       </p>

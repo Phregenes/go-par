@@ -53,9 +53,10 @@ No desenvolvimento, o Vite encaminha `/api` para `http://localhost:3001`. Deixe 
 Páginas:
 
 - `/` — conceito do GoPar
-- `/atividades` — listagem de planos e parceiros
-- `/entrar` — login (e-mail + senha)
-- `/cadastro` — cadastro com nome, CPF, data de nascimento e gênero (18+)
+- `/activities` — listagem de planos e parceiros
+- `/login` — login (e-mail + senha)
+- `/signup` — cadastro com nome, CPF, data de nascimento e gênero (18+)
+- `/account` — editar dados, e-mail, senha e excluir conta (exige login)
 
 ### Auth (Supabase)
 

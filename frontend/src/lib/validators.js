@@ -137,6 +137,33 @@ export function validateLogin({ email, password }) {
   }
 }
 
+export function validateProfile({ fullName, cpf, birthDate, gender }) {
+  const errors = {}
+
+  if (!isValidFullName(fullName)) {
+    errors.fullName = 'Informe nome e sobrenome.'
+  }
+
+  if (!isValidCpf(cpf)) {
+    errors.cpf = 'CPF inválido.'
+  }
+
+  if (!birthDate) {
+    errors.birthDate = 'Informe a data de nascimento.'
+  } else if (!isAdult(birthDate)) {
+    errors.birthDate = 'É necessário ter 18 anos ou mais.'
+  }
+
+  if (!GENDERS.has(gender)) {
+    errors.gender = 'Selecione uma opção de gênero.'
+  }
+
+  return {
+    ok: Object.keys(errors).length === 0,
+    errors,
+  }
+}
+
 export function initialsFromName(name) {
   const parts = String(name ?? '')
     .trim()

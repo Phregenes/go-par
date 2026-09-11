@@ -45,7 +45,7 @@ export function AppLayout({ children }) {
             <NavLink to="/" className={navClass} end>
               Início
             </NavLink>
-            <NavLink to="/atividades" className={navClass}>
+            <NavLink to="/activities" className={navClass}>
               Atividades
             </NavLink>
 
@@ -80,6 +80,14 @@ export function AppLayout({ children }) {
                         {user.email}
                       </p>
                     </div>
+                    <Link
+                      to="/account"
+                      role="menuitem"
+                      className="block w-full px-4 py-2.5 text-left text-sm text-ink no-underline hover:bg-sand"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Minha conta
+                    </Link>
                     <button
                       type="button"
                       role="menuitem"
@@ -96,7 +104,7 @@ export function AppLayout({ children }) {
               </div>
             ) : (
               <Link
-                to="/entrar"
+                to="/login"
                 className="ml-2 inline-flex rounded-full bg-clay px-4 py-2 text-sm font-medium text-paper no-underline transition-colors hover:bg-clay-dark"
               >
                 Entrar

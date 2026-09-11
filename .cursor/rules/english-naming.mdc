@@ -1,0 +1,33 @@
+---
+description: English-first naming for routes, files, APIs, and code identifiers
+alwaysApply: true
+---
+
+# English-first naming
+
+Use **English** as the default for all technical names in this repo.
+
+## Must be English
+
+- URL routes and path segments (`/login`, `/signup`, `/account`, `/activities`)
+- React route `path` values and `Navigate`/`Link`/`NavLink` `to` targets
+- File and folder names (`LoginPage.jsx`, `AccountPage.jsx`)
+- Components, hooks, functions, variables, and constants
+- API endpoints and query/body field names exposed by the backend
+- Database table/column names when we control them (already `profiles`, `full_name`, etc.)
+- Git branch names and commit message subjects when creating new ones
+- Env var names (`VITE_SUPABASE_URL`, not Portuguese equivalents)
+
+## May stay in Portuguese (or later i18n)
+
+- User-visible copy in the UI (labels, buttons, errors shown to end users)
+- Marketing / README prose aimed at Brazilian readers
+
+## Examples
+
+```text
+✅ /login  /signup  /account  /activities
+❌ /entrar  /cadastro  /conta  /atividades
+```
+
+When renaming a public route, add a temporary redirect from the old path if users might have bookmarked it.
