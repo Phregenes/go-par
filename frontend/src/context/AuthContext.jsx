@@ -134,13 +134,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   const updateProfile = useCallback(
-    async ({ fullName, cpf, birthDate, gender }) => {
+    async ({ fullName, birthDate, gender }) => {
       const userId = session?.user?.id
       if (!userId) throw new Error('Você precisa estar autenticado.')
 
       const payload = {
         full_name: String(fullName).trim().replace(/\s+/g, ' '),
-        cpf: onlyDigits(cpf),
         birth_date: birthDate,
         gender,
       }
@@ -155,7 +154,6 @@ export function AuthProvider({ children }) {
       const { error: metaError } = await supabase.auth.updateUser({
         data: {
           full_name: payload.full_name,
-          cpf: payload.cpf,
           birth_date: payload.birth_date,
           gender: payload.gender,
         },
@@ -166,20 +164,6 @@ export function AuthProvider({ children }) {
     },
     [session, refreshProfile],
   )
-
-  const updateEmail = useCallback(async (email) => {
-    const { data, error } = await supabase.auth.updateUser({
-      email: String(email).trim(),
-    })
-    if (error) throw error
-    return data
-  }, [])
-
-  const updatePassword = useCallback(async (password) => {
-    const { data, error } = await supabase.auth.updateUser({ password })
-    if (error) throw error
-    return data
-  }, [])
 
   const deleteAccount = useCallback(async () => {
     const { data, error } = await supabase.functions.invoke('delete-account', {
@@ -204,8 +188,6 @@ export function AuthProvider({ children }) {
       signIn,
       signOut,
       updateProfile,
-      updateEmail,
-      updatePassword,
       deleteAccount,
       refreshProfile,
     }),
@@ -217,8 +199,6 @@ export function AuthProvider({ children }) {
       signIn,
       signOut,
       updateProfile,
-      updateEmail,
-      updatePassword,
       deleteAccount,
       refreshProfile,
     ],

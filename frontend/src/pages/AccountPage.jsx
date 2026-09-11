@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext.jsx'
 import {
   formatCpf,
   GENDER_OPTIONS,
-  isValidEmail,
   validateProfile,
 } from '../lib/validators.js'
 
@@ -14,50 +13,33 @@ export function AccountPage() {
     profile,
     loading,
     updateProfile,
-    updateEmail,
-    updatePassword,
     deleteAccount,
   } = useAuth()
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
     fullName: '',
-    cpf: '',
     birthDate: '',
     gender: '',
   })
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState('')
 
   const [profileErrors, setProfileErrors] = useState({})
   const [profileMessage, setProfileMessage] = useState('')
   const [profileError, setProfileError] = useState('')
-  const [emailMessage, setEmailMessage] = useState('')
-  const [emailError, setEmailError] = useState('')
-  const [passwordMessage, setPasswordMessage] = useState('')
-  const [passwordError, setPasswordError] = useState('')
   const [deleteError, setDeleteError] = useState('')
 
   const [savingProfile, setSavingProfile] = useState(false)
-  const [savingEmail, setSavingEmail] = useState(false)
-  const [savingPassword, setSavingPassword] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!profile) return
     setForm({
       fullName: profile.full_name ?? '',
-      cpf: formatCpf(profile.cpf ?? ''),
       birthDate: profile.birth_date ?? '',
       gender: profile.gender ?? '',
     })
   }, [profile])
-
-  useEffect(() => {
-    if (user?.email) setEmail(user.email)
-  }, [user])
 
   if (loading) {
     return (
@@ -80,7 +62,10 @@ export function AccountPage() {
     setProfileMessage('')
     setProfileError('')
 
-    const result = validateProfile(form)
+    const result = validateProfile({
+      ...form,
+      cpf: profile?.cpf ?? '',
+    })
     setProfileErrors(result.errors)
     if (!result.ok) return
 
@@ -89,69 +74,9 @@ export function AccountPage() {
       await updateProfile(form)
       setProfileMessage('Dados atualizados com sucesso.')
     } catch (error) {
-      const message = error?.message || 'Não foi possível salvar.'
-      if (/cpf|duplicate|unique/i.test(message)) {
-        setProfileError('Este CPF já está em uso por outra conta.')
-      } else {
-        setProfileError(message)
-      }
+      setProfileError(error?.message || 'Não foi possível salvar.')
     } finally {
       setSavingProfile(false)
-    }
-  }
-
-  async function handleEmailSubmit(event) {
-    event.preventDefault()
-    setEmailMessage('')
-    setEmailError('')
-
-    if (!isValidEmail(email)) {
-      setEmailError('E-mail inválido.')
-      return
-    }
-
-    if (email.trim() === user.email) {
-      setEmailMessage('Este já é o e-mail da sua conta.')
-      return
-    }
-
-    setSavingEmail(true)
-    try {
-      await updateEmail(email.trim())
-      setEmailMessage(
-        `Enviamos um e-mail de confirmação para ${email.trim()}. Confirme para concluir a troca.`,
-      )
-    } catch (error) {
-      setEmailError(error?.message || 'Não foi possível atualizar o e-mail.')
-    } finally {
-      setSavingEmail(false)
-    }
-  }
-
-  async function handlePasswordSubmit(event) {
-    event.preventDefault()
-    setPasswordMessage('')
-    setPasswordError('')
-
-    if (password.length < 8) {
-      setPasswordError('A senha precisa ter pelo menos 8 caracteres.')
-      return
-    }
-    if (password !== passwordConfirm) {
-      setPasswordError('As senhas não coincidem.')
-      return
-    }
-
-    setSavingPassword(true)
-    try {
-      await updatePassword(password)
-      setPassword('')
-      setPasswordConfirm('')
-      setPasswordMessage('Senha atualizada com sucesso.')
-    } catch (error) {
-      setPasswordError(error?.message || 'Não foi possível atualizar a senha.')
-    } finally {
-      setSavingPassword(false)
     }
   }
 
@@ -198,13 +123,15 @@ export function AccountPage() {
             onChange={(value) => updateField('fullName', value)}
             error={profileErrors.fullName}
           />
-          <Field
-            id="cpf"
+          <ReadOnlyField
+            label="E-mail"
+            value={user.email || '—'}
+            hint="O e-mail não pode ser alterado após o cadastro."
+          />
+          <ReadOnlyField
             label="CPF"
-            inputMode="numeric"
-            value={form.cpf}
-            onChange={(value) => updateField('cpf', formatCpf(value))}
-            error={profileErrors.cpf}
+            value={formatCpf(profile?.cpf ?? '') || '—'}
+            hint="O CPF não pode ser alterado após o cadastro."
           />
           <Field
             id="birthDate"
@@ -270,71 +197,6 @@ export function AccountPage() {
       </section>
 
       <section className="mt-14 border-t border-sand-deep pt-10">
-        <h2 className="font-serif text-2xl text-ink">E-mail</h2>
-        <form onSubmit={handleEmailSubmit} className="mt-5 space-y-5" noValidate>
-          <Field
-            id="email"
-            label="E-mail"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            error={emailError}
-          />
-          {emailMessage ? (
-            <p className="text-sm text-olive" role="status">
-              {emailMessage}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            disabled={savingEmail}
-            className="inline-flex rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper disabled:opacity-60"
-          >
-            {savingEmail ? 'Atualizando…' : 'Atualizar e-mail'}
-          </button>
-        </form>
-      </section>
-
-      <section className="mt-14 border-t border-sand-deep pt-10">
-        <h2 className="font-serif text-2xl text-ink">Senha</h2>
-        <form
-          onSubmit={handlePasswordSubmit}
-          className="mt-5 space-y-5"
-          noValidate
-        >
-          <Field
-            id="password"
-            label="Nova senha"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={setPassword}
-          />
-          <Field
-            id="passwordConfirm"
-            label="Confirmar nova senha"
-            type="password"
-            autoComplete="new-password"
-            value={passwordConfirm}
-            onChange={setPasswordConfirm}
-            error={passwordError}
-          />
-          {passwordMessage ? (
-            <p className="text-sm text-olive" role="status">
-              {passwordMessage}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            disabled={savingPassword}
-            className="inline-flex rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper disabled:opacity-60"
-          >
-            {savingPassword ? 'Atualizando…' : 'Atualizar senha'}
-          </button>
-        </form>
-      </section>
-
-      <section className="mt-14 border-t border-sand-deep pt-10">
         <h2 className="font-serif text-2xl text-clay-dark">Excluir conta</h2>
         <p className="mt-3 text-sm text-ink-soft">
           Esta ação apaga permanentemente seu login e perfil no GoPar. Não dá
@@ -363,6 +225,20 @@ export function AccountPage() {
           Voltar ao início
         </Link>
       </p>
+    </div>
+  )
+}
+
+function ReadOnlyField({ label, value, hint }) {
+  return (
+    <div>
+      <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>
+      <p className="rounded-xl border border-ink/10 bg-sand-deep/40 px-4 py-3 text-ink">
+        {value}
+      </p>
+      {hint ? (
+        <span className="mt-1.5 block text-sm text-ink-soft">{hint}</span>
+      ) : null}
     </div>
   )
 }

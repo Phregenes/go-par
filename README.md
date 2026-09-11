@@ -56,7 +56,7 @@ Páginas:
 - `/activities` — listagem de planos e parceiros
 - `/login` — login (e-mail + senha)
 - `/signup` — cadastro com nome, CPF, data de nascimento e gênero (18+)
-- `/account` — editar dados, e-mail, senha e excluir conta (exige login)
+- `/account` — editar dados pessoais e excluir conta (exige login; e-mail e CPF só leitura)
 
 ### Auth (Supabase)
 
